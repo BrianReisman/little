@@ -24,6 +24,10 @@ def number?(n)
 	n.class == Fixnum
 end
 
+def atom?(s)
+	s.class != Array
+end
+
 ### from book 
 
 # remove first occurence of a in lat
@@ -205,7 +209,7 @@ def all_nums(lat)
 	end
 end
 
-# how many times atom appears in lat)
+# how many times atom appears in lat
 def occur(a, lat)
 	return 0 if lat == []
 	if car(lat) == a 
@@ -214,6 +218,57 @@ def occur(a, lat)
 		occur(a, cdr(lat))
 	end
 end
-puts occur('e', %w(d e r e k))
-puts occur('x', %w(d e r e k))
+
+def rember2(a, l)
+	#puts "#{a}: l= #{l.inspect}"
+	return [] if l == []
+	if atom?(car(l))
+		if car(l) == a
+			rember2(a, cdr(l))
+		else
+			cons(car(l), rember2(a, cdr(l)))
+		end
+	else
+		cons(rember2(a, car(l)), rember2(a, cdr(l)))  # <-- !!!
+	end
+end
+#a = 'sauce'
+#l = [['tomato', 'sauce'], [['bean'], 'sauce'], ['and', [['flying']], 'sauce']]
+#puts rember2(a, l).inspect
+
+def insertr2(new1, old1, l)
+	puts "#{new1}|#{old1}: #{l.inspect}"
+	return [] if l == []
+	if atom?(car(l))
+		if car(l) == old1
+			cons(car(l), cons(new1, insertr2(new1, old1, cdr(l))))
+		else
+			cons(car(l), insertr2(new1, old1, cdr(l)))
+		end
+	else
+		cons(insertr2(new1, old1, car(l)), insertr2(new1, old1, cdr(l)))
+	end
+end
+new1 = 'roast'
+old1 = 'chuck'
+l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
+puts insertr2(new1, old1, l).inspect
+
+def subst2(new1, old1, l)
+	puts "#{new1}|#{old1}: #{l.inspect}"
+	return [] if l == []
+	if atom?(car(l))
+		if car(l) == old1
+			cons(new1, subst2(new1, old1, cdr(l)))
+		else
+			cons(car(l), subst2(new1, old1, cdr(l)))
+		end
+	else
+		cons(subst2(new1, old1, car(l)), subst2(new1, old1, cdr(l)))
+	end
+end
+new1 = 'roast'
+old1 = 'chuck'
+l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
+#puts subst2(new1, old1, l).inspect
 
