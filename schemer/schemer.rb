@@ -33,7 +33,6 @@ end
 # When building a list, describe the first typical element, then cons it onto the recursion
 
 def firsts(l)
-	puts "l is #{l.inspect}"
 	return [] if l == []
 	cons(car(car(l)), firsts(cdr(l)))
 end
@@ -122,61 +121,38 @@ def mult(n, m)
 	plus(n, mult(n, sub1(m)))
 end
 
+# < "less than"
+def lt(n, m)
+	return false if m == 0
+	return true if n == 0
+	lt(sub1(n), sub1(m))
+end
+
+# > "greater than"
+def gt(n, m)
+	return false if n == 0
+	return true if m == 0
+	gt(sub1(n), sub1(m))
+end
+
 def div(n, m)
-	puts "n is #{n} and m is #{m}"
-	return 0 if m == 0
+	return 0 if lt(n, m)
+	add1(div(minus(n, m), m))
 end
 
 # sum
 def addtup(tup)
+	return 0 if tup == []
+	plus(car(tup), addtup(cdr(tup)))
 end
 
 # returns array/tuple of summing same-position items in lists
 def tupp(tup1, tup2)
+	puts "tup1 is #{tup1.inspect}, tup2 is #{tup2.inspect}"
+	#return [] if (tup1 == [] || tup2 == [])
+	return tup2 if tup1 == []
+	return tup1 if tup2 == []
+	cons(plus(car(tup1), car(tup2)), tupp(cdr(tup1), cdr(tup2)))
 end
-
-#lat = %w(d e r e k)
-#puts rember('e', lat).inspect
-#puts rember('b', lat).inspect
-
-#puts insertr('and', 'lettuce', %w(bacon lettuce tomato)).inspect
-#puts insertr('b', 'a', %w(a c d e)).inspect
-#puts insertr('f', 'e', %w(a b c d e)).inspect
-#puts insertr('z', 'x', %w(a b c)).inspect
-
-#puts insertl('a', 'b', %w(b c d)).inspect
-#puts insertl('y', 'z', %w(w x z)).inspect
-#puts insertl('dog', 'cat', %w(a b c)).inspect
-
-#puts firsts([%w(a b c), %w(d e f), %w(g h i)]).inspect
-
-#puts subst('i', 'o', %w(d o g)).inspect
-#puts subst('i', 'o', %w(g o o d)).inspect
-
-#puts subst2('vanilla', 'chocolate', 'banana', %w(banana ice cream with chocolate topping)).inspect
-
-#puts multirember('e', %w(d e r e k)).inspect
-
-#puts multiinsertr('x', 'e', %w(d e r e k)).inspect
-#puts multiinsertl('x', 'e', %w(d e r e k)).inspect
-#puts multiinsertl('x', 'a', %w(a b b a)).inspect
-
-#puts multisubst('i', 'o', %w(g o o d)).inspect
-
-#puts plus(7, 11)
-#puts plus(0, 2)
-#puts plus(9, 0)
-
-#puts minus(11, 3)
-#puts minus(2, 0)
-#puts minus(1, 1)
-
-#puts mult(3, 8)
-#puts mult(25, 1)
-#puts mult(0, 10)
-#puts mult(10, 0)
-
-puts div(10, 2)
-puts div(25, 5)
-puts div(26, 5)
+puts (tupp([1, 3, 5], [2, 4, 6, 8])).inspect
 
