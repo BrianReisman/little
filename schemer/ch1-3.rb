@@ -10,6 +10,14 @@ def cons(a, lat)
 	lat.dup.unshift(a)
 end
 
+def add1(n)
+	n + 1
+end
+
+def sub1(n)
+	n - 1
+end
+
 # remove first occurence of a in lat
 def rember(a, lat)
 	return [] if lat == []
@@ -99,6 +107,34 @@ def multisubst(new1, old1, lat)
 	end
 end
 
+def plus(n, m)
+	return n if m == 0
+	plus(add1(n), sub1(m))
+end
+
+def minus(n, m)
+	return n if m == 0
+	minus(sub1(n), sub1(m))
+end
+
+def mult(n, m)
+	return 0 if m == 0
+	plus(n, mult(n, sub1(m)))
+end
+
+def div(n, m)
+	puts "n is #{n} and m is #{m}"
+	return 0 if m == 0
+end
+
+# sum
+def addtup(tup)
+end
+
+# returns array/tuple of summing same-position items in lists
+def tupp(tup1, tup2)
+end
+
 #lat = %w(d e r e k)
 #puts rember('e', lat).inspect
 #puts rember('b', lat).inspect
@@ -125,6 +161,22 @@ end
 #puts multiinsertl('x', 'e', %w(d e r e k)).inspect
 #puts multiinsertl('x', 'a', %w(a b b a)).inspect
 
-#
+#puts multisubst('i', 'o', %w(g o o d)).inspect
 
-puts multisubst('i', 'o', %w(g o o d)).inspect
+#puts plus(7, 11)
+#puts plus(0, 2)
+#puts plus(9, 0)
+
+#puts minus(11, 3)
+#puts minus(2, 0)
+#puts minus(1, 1)
+
+#puts mult(3, 8)
+#puts mult(25, 1)
+#puts mult(0, 10)
+#puts mult(10, 0)
+
+puts div(10, 2)
+puts div(25, 5)
+puts div(26, 5)
+
