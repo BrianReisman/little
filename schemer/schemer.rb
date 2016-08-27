@@ -1,3 +1,5 @@
+### primitives:
+
 def car(lat)
 	lat[0]
 end
@@ -18,6 +20,12 @@ def sub1(n)
 	n - 1
 end
 
+def number?(n)
+	n.class == Fixnum
+end
+
+### from book 
+
 # remove first occurence of a in lat
 def rember(a, lat)
 	return [] if lat == []
@@ -29,14 +37,10 @@ def firsts(l)
 	l.dup.map(&:shift)
 end
 
-# 3rd COMMANDMENT:
-# When building a list, describe the first typical element, then cons it onto the recursion
-
 def firsts(l)
 	return [] if l == []
 	cons(car(car(l)), firsts(cdr(l)))
 end
-
 
 # insert new1 to the right of old1 
 def insertr(new1, old1, lat)
@@ -148,11 +152,68 @@ end
 
 # returns array/tuple of summing same-position items in lists
 def tupp(tup1, tup2)
-	puts "tup1 is #{tup1.inspect}, tup2 is #{tup2.inspect}"
-	#return [] if (tup1 == [] || tup2 == [])
+	# if one list is shorter, the remains of other list are the final cons response
 	return tup2 if tup1 == []
 	return tup1 if tup2 == []
 	cons(plus(car(tup1), car(tup2)), tupp(cdr(tup1), cdr(tup2)))
 end
-puts (tupp([1, 3, 5], [2, 4, 6, 8])).inspect
+# see this example to understand:
+# puts (tupp([1, 3, 5], [2, 4, 6, 8, 10, 12])).inspect
+
+def eq?(n, m)
+	return false if lt(n, m)
+	return false if gt(n, m)
+	true
+end
+
+def pwr(n, m)
+	return 1 if m == 0
+	mult(n, pwr(n, sub1(m)))
+end
+
+def length(lat)
+	return 0 if lat == []
+	add1(length(cdr(lat)))
+end
+
+def pick(n, lat)
+	return car(lat) if n == 1
+	pick(sub1(n), cdr(lat))
+end
+
+# lat with pick(n, lat) removed
+def rempick(n, lat)
+	return [] if lat == []
+	return cdr(lat) if n == 1
+	cons(car(lat), rempick(sub1(n), cdr(lat)))
+end
+
+# lat with numbers removed
+def no_nums(lat)
+	return [] if lat == []
+	return no_nums(cdr(lat)) if number?(car(lat))
+	cons(car(lat), no_nums(cdr(lat)))
+end
+
+# lat/tuple of only numbers from lat
+def all_nums(lat)
+	return [] if lat == []
+	if number?(car(lat))
+		cons(car(lat), all_nums(cdr(lat)))
+	else
+		all_nums(cdr(lat))
+	end
+end
+
+# how many times atom appears in lat)
+def occur(a, lat)
+	return 0 if lat == []
+	if car(lat) == a 
+		add1(occur(a, cdr(lat)))
+	else
+		occur(a, cdr(lat))
+	end
+end
+puts occur('e', %w(d e r e k))
+puts occur('x', %w(d e r e k))
 
