@@ -237,7 +237,6 @@ end
 #puts rember2(a, l).inspect
 
 def insertr2(new1, old1, l)
-	puts "#{new1}|#{old1}: #{l.inspect}"
 	return [] if l == []
 	if atom?(car(l))
 		if car(l) == old1
@@ -249,13 +248,12 @@ def insertr2(new1, old1, l)
 		cons(insertr2(new1, old1, car(l)), insertr2(new1, old1, cdr(l)))
 	end
 end
-new1 = 'roast'
-old1 = 'chuck'
-l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
-puts insertr2(new1, old1, l).inspect
+#new1 = 'roast'
+#old1 = 'chuck'
+#l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
+#puts insertr2(new1, old1, l).inspect
 
 def subst2(new1, old1, l)
-	puts "#{new1}|#{old1}: #{l.inspect}"
 	return [] if l == []
 	if atom?(car(l))
 		if car(l) == old1
@@ -267,8 +265,64 @@ def subst2(new1, old1, l)
 		cons(subst2(new1, old1, car(l)), subst2(new1, old1, cdr(l)))
 	end
 end
-new1 = 'roast'
-old1 = 'chuck'
-l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
+#new1 = 'roast'
+#old1 = 'chuck'
+#l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
 #puts subst2(new1, old1, l).inspect
+
+def insertl2(new1, old1, l)
+	return [] if l == []
+	if atom?(car(l))
+		if car(l) == old1
+			cons(new1, cons(old1, insertl2(new1, old1, cdr(l))))
+		else
+			cons(car(l), insertl2(new1, old1, cdr(l)))
+		end
+	else
+		cons(insertl2(new1, old1, car(l)), insertl2(new1, old1, cdr(l)))
+	end
+end
+#new1 = 'pecker'
+#old1 = 'chuck'
+#l = [['how', 'much', ['wood']], 'could', [['a', ['wood'], 'chuck']], [[['chuck']]], ['if', ['a'], [['wood', 'chuck']]], 'could', 'chuck', 'wood']
+#puts insertl2(new1, old1, l).inspect
+
+def member2(a, l)
+	return false if l == []
+	if atom?(car(l))
+		((car(l) == a) || member2(a, cdr(l)))
+	else
+		(member2(a, car(l)) || member2(a, cdr(l)))
+	end
+end
+#a = 'chips'
+#l = [['potato'], ['chips', [['with'], 'fish'], ['chips']]]
+#puts member2(a, l).inspect
+
+# find leftmost atom in non-empty list that does not contain an empty list
+def leftmost(l)
+	if atom?(car(l))
+		return car(l)
+	else
+		leftmost(car(l))
+	end
+end
+
+def eqlist?(l1, l2)
+	puts "#{l1.inspect} ++ #{l2.inspect}"
+	return true if (l1 == [] && l2 == [])
+	return false if (l1 == [] || l2 == [])
+	if atom?(car(l1)) && atom?(car(l2))
+		return false if car(l1) != car(l2)
+		(eqlist?(cdr(l1), cdr(l2)))
+	elsif atom?(car(l1)) || atom?(car(l2))
+		return false
+	else
+		(eqlist?(car(l1), car(l2)) && eqlist?(cdr(l1), cdr(l2)))
+	end
+end
+puts eqlist?(['a', [['b']], ['c']], ['a', [['b']], ['c']])
+puts eqlist?(%w(a b c), ['a', 'b', 'c'])
+puts eqlist?(%w(a b c), ['c', 'b', 'a'])
+
 
