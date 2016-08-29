@@ -1,4 +1,4 @@
-### primitives:
+### NOTE: switching to JavaScript, for first-class functions. See other file.
 
 def car(lat)
 	lat[0]
