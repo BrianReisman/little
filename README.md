@@ -8,3 +8,4 @@ The Little Schemer - 4th Edition
 
 ----
 
+I started in Ruby, because I know it best, but as it came into higher order functions in Chapter 8 - “Lambda the Ultimate” - I decided to switch to a language with first-class functions.  Lua, at first, but then chose JavaScript, using NodeJS, since it's more important to keep my JavaaScript chops up.
