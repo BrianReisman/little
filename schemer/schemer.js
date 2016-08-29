@@ -138,31 +138,38 @@ function multisubst(new1, old1, lat) {
 
 
 function plus(n, m) {
-	
+	if(m == 0) { return n; }
+	return plus(add1(n), sub1(m));
 }
 
 
 function minus(n, m) {
-	
+	if(m == 0) { return n; }
+	return minus(sub1(n), sub1(m));
 }
 
 
 function mult(n, m) {
-	
+	console.log(n, m);
+	if(m == 0) { return n; }
+	return mult(plus(n, n), sub1(m));
 }
 
 
 function lt(n, m) {
+	if(m == 0) { return 0; }
 	
 }
 
 
 function gt(n, m) {
+	if(m == 0) { return 0; }
 	
 }
 
 
 function div(n, m) {
+	if(m == 0) { return 0; }
 	
 }
 
