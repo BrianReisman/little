@@ -35,7 +35,7 @@ function numberQ(n) {
 }
 
 function atomQ(n) {
-	return (typeof(n) == ('number' || 'string'));
+	return ((typeof(n) == 'number') || (typeof(n) == 'string'));
 }
 
 
@@ -176,76 +176,107 @@ function div(n, m) {
 
 
 function addtup(tup) {
-	
+	if(!tup.length) { return 0; }
+	return plus(car(tup), addtup(cdr(tup)));
 }
 
 
 function tupp(tup1, tup2) {
-	
-}
-
-
-function eqQ(n, m) {
-	
+	if(!tup1.length) { return tup2; }
+	if(!tup2.length) { return tup1; }
+	return cons(plus(car(tup1), car(tup2)), tupp(cdr(tup1), cdr(tup2)));
 }
 
 
 function pwr(n, m) {
-	
+	if(m == 0) { return 1; }
+	return mult(n, pwr(n, sub1(m)));
 }
 
 
 function length(lat) {
-	
+	if(!lat.length) { return 0; }
+	return add1(length(cdr(lat)));
 }
 
 
 function pick(n, lat) {
-	
+	if(n == 1) { return car(lat); }
+	return pick(sub1(n), cdr(lat));
 }
 
 
 function rempick(n, lat) {
-	
+	if(n == 1) { return cdr(lat); }
+	return cons(car(lat), rempick(sub1(n), cdr(lat)));
 }
 
 
 function no_nums(lat) {
-	
+	if(!lat.length) { return lat; }
+	if(numberQ(car(lat))) {
+		return no_nums(cdr(lat));
+	} else {
+		return cons(car(lat), no_nums(cdr(lat)));
+	}
 }
 
 
 function all_nums(lat) {
-	
+	if(!lat.length) { return lat; }
+	if(numberQ(car(lat))) {
+		return cons(car(lat), all_nums(cdr(lat)));
+	} else {
+		return all_nums(cdr(lat));
+	}
 }
 
 
 function occur(a, lat) {
-	
+	if(!lat.length) { return 0; }
+	if(car(lat) == a) {
+		return add1(occur(a, cdr(lat)));
+	} else {
+		return occur(a, cdr(lat));
+	}
 }
 
 
 function rember2(a, l) {
 	if(!l.length) { return l; }
-	
+	if(atomQ(car(l))) {
+		if(car(l) == a) {
+			return rember2(a, cdr(l));
+		} else {
+			return cons(car(l), rember2(a, cdr(l)));
+		}
+	} else {
+		return cons(rember2(a, car(l)), rember2(a, cdr(l)));
+	}
 }
 
 
 function insertr2(new1, old1, l) {
 	if(!l.length) { return l; }
-	
+	if(atomQ(car(l))) {
+	} else {
+	}
 }
 
 
 
 function insertl2(new1, old1, l) {
 	if(!l.length) { return l; }
-	
+	if(atomQ(car(l))) {
+	} else {
+	}
 }
 
 
 function member2(a, l) {
-	
+	if(atomQ(car(l))) {
+	} else {
+	}
 }
 
 
@@ -301,7 +332,9 @@ function test(val1, val2, message) {
 // easy lists to test:
 var abc = ['a','b','c'];
 var derek = ['d','e','r','e','k'];
+var a1b2c3 = ['a',1,'b',2,'c',3];
 var abcdefghi = [['a','b','c'],['d','e','f'],['g','h','i']];
+var abcabc = [['a','b'], [[['c']],'a'], 'b', ['c']];
 // primitives:
 test(car(abc), 'a', 'car');
 test(cdr(abc), ['b', 'c'], 'cdr');
@@ -312,6 +345,7 @@ test(sub1(9), 8, 'sub1');
 test(numberQ(9), true, 'numberQ');
 test(numberQ('3'), false, 'numberQ not string');
 test(atomQ(9), true, 'atomQ');
+test(atomQ('a'), true, 'atomQ');
 test(atomQ(abc), false, 'atomQ+');
 // exercises:
 test(rember('e', derek), ['d','r','e','k'], 'rember');
@@ -331,4 +365,17 @@ test(lt(5, 4), false, 'lt');
 test(gt(5, 4), true, 'gt');
 test(div(15, 3), 5, 'div');
 test(div(16, 3), 5, 'div+');
-
+test(addtup([1,2,3,4]), 10, 'addtup');
+test(tupp([2,4,6],[3,5,7]), [5,9,13], 'tupp');
+test(tupp([2,4,6,8],[3,5,7]), [5,9,13,8], 'tupp+');
+test(pwr(5, 3), 125, 'pwr');
+test(length(abc), 3, 'length');
+test(pick(3, derek), 'r', 'pick');
+test(rempick(2, abc), ['a','c'], 'rempick');
+test(no_nums(a1b2c3), ['a','b','c'], 'no_nums');
+test(all_nums(a1b2c3), [1,2,3], 'all_nums');
+test(occur('e', derek), 2, 'occur');
+test(rember2('b', abcabc), [['a'],[[['c']],'a'],['c']], 'rember2');
+//test(insertr2('X', 'b', abcabc), [['a','b','X'],[[['c']],'a'],'b','X',['c']], 'insertr2');
+//test(insertl2('X', 'b', abcabc), [['a','X','b'],[[['c']],'a'],'X','b',['c']], 'insertl2');
+//test(member2('c', abcabc), true, 'member2');
