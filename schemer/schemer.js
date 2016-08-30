@@ -150,27 +150,28 @@ function minus(n, m) {
 
 
 function mult(n, m) {
-	console.log(n, m);
-	if(m == 0) { return n; }
-	return mult(plus(n, n), sub1(m));
+	if(m == 1) { return n; }
+	return plus(n, mult(n, sub1(m)));
 }
 
 
 function lt(n, m) {
-	if(m == 0) { return 0; }
-	
+	if(m == 0) { return false; }
+	if(n == 0) { return true; }
+	return lt(sub1(n), sub1(m));
 }
 
 
 function gt(n, m) {
-	if(m == 0) { return 0; }
-	
+	if(n == 0) { return false; }
+	if(m == 0) { return true; }
+	return gt(sub1(n), sub1(m));
 }
 
 
 function div(n, m) {
-	if(m == 0) { return 0; }
-	
+	if(lt(n, m)) { return 0; }
+	return add1(div(minus(n, m), m));
 }
 
 
