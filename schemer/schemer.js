@@ -259,7 +259,13 @@ function rember2(a, l) {
 function insertr2(new1, old1, l) {
 	if(!l.length) { return l; }
 	if(atomQ(car(l))) {
+		if(car(l) == old1) {
+			return cons(old1, cons(new1, insertr2(new1, old1, cdr(l))));
+		} else {
+			return cons(car(l), insertr2(new1, old1, cdr(l)));
+		}
 	} else {
+		return cons(insertr2(new1, old1, car(l)), insertr2(new1, old1, cdr(l)));
 	}
 }
 
@@ -268,25 +274,52 @@ function insertr2(new1, old1, l) {
 function insertl2(new1, old1, l) {
 	if(!l.length) { return l; }
 	if(atomQ(car(l))) {
+		if(car(l) == old1) {
+			return cons(new1, cons(old1, insertl2(new1, old1, cdr(l))));
+		} else {
+			return cons(car(l), insertl2(new1, old1, cdr(l)));
+		}
 	} else {
+		return cons(insertl2(new1, old1, car(l)), insertl2(new1, old1, cdr(l)));
 	}
 }
 
 
 function member2(a, l) {
+	if(!l.length) { return false; }
 	if(atomQ(car(l))) {
+		if(car(l) == a) {
+			return true;
+		} else {
+			return member2(a, cdr(l));
+		}
 	} else {
+		return (member2(a, car(l)) || member2(a, cdr(l)));
 	}
 }
 
 
 function leftmost(l) {
-	
+	if(atomQ(car(l))) {
+		return car(l);
+	} else {
+		return leftmost(car(l));
+	}
 }
 
 
 function eqlistQ(l1, l2) {
-	
+	if(!l1.length && !l2.length) { return true; }
+	if(!l1.length || !l2.length) { return false; }
+	if(atomQ(car(l1)) && atomQ(car(l2))) {
+		if(car(l1) == car(l2)) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return (eqlistQ(car(l1), car(l2)) && eqlistQ(cdr(l1), cdr(l2)));
+	}
 }
 
 
@@ -376,6 +409,10 @@ test(no_nums(a1b2c3), ['a','b','c'], 'no_nums');
 test(all_nums(a1b2c3), [1,2,3], 'all_nums');
 test(occur('e', derek), 2, 'occur');
 test(rember2('b', abcabc), [['a'],[[['c']],'a'],['c']], 'rember2');
-//test(insertr2('X', 'b', abcabc), [['a','b','X'],[[['c']],'a'],'b','X',['c']], 'insertr2');
-//test(insertl2('X', 'b', abcabc), [['a','X','b'],[[['c']],'a'],'X','b',['c']], 'insertl2');
-//test(member2('c', abcabc), true, 'member2');
+test(insertr2('X', 'b', abcabc), [['a','b','X'],[[['c']],'a'],'b','X',['c']], 'insertr2');
+test(insertl2('X', 'b', abcabc), [['a','X','b'],[[['c']],'a'],'X','b',['c']], 'insertl2');
+test(member2('c', abcabc), true, 'member2');
+test(member2('z', abcabc), false, 'member2+');
+test(leftmost(abcdefghi), 'a', 'leftmost');
+test(eqlistQ(abcabc, abcabc), true, 'eqlistQ1');
+test(eqlistQ(abcabc, abcdefghi), false, 'eqlistQ1');
