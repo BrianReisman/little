@@ -61,3 +61,16 @@ When building a value with cons, always use () for the value of the terminating 
 
 Simplify only after the function is correct.
 
+
+## 7
+
+Recur on the subparts that are of the same nature:
+
+* On the subparts of a list
+* On the subexpressions of an arithmetic expression.
+
+## 8
+
+Use help functions to abstract from representations.
+
+

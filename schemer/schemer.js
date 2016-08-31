@@ -41,6 +41,13 @@ function atomQ(n) {
 
 /* ========== exercises from book ============ */
 
+function memberQ(a, lat) {
+	if(!lat.length) { return false; }
+	if(car(lat) == a) { return true; }
+	return memberQ(a, cdr(lat));
+}
+
+
 function rember(a, lat) {
 	if(!lat.length) { return lat; }
 	if(car(lat) == a) {
@@ -323,6 +330,64 @@ function eqlistQ(l1, l2) {
 }
 
 
+function setQ(lat) {
+	if(!lat.length) { return true; }
+	if(memberQ(car(lat), cdr(lat))) { return false; }
+	return setQ(cdr(lat));
+}
+
+
+function makeset(lat) {
+	if(!lat.length) { return lat; }
+	return cons(car(lat), multirember(car(lat), makeset(cdr(lat))));
+}
+
+
+/* each atom in set1 is also in set2? */
+/* NOTE: these fail if the lists passed in are not already a set */
+function subsetQ(set1, set2) {
+	if(!set1.length) { return true; }
+	return ((memberQ(car(set1), set2)) && (subsetQ(cdr(set1), set2)));
+}
+
+
+function eqsetQ(set1, set2) {
+	return ((subsetQ(set1, set2)) && (subsetQ(set2, set1)));
+}
+
+/* at least one atom in set1 is in set2 */
+function intersectQ(set1, set2) {
+	if(!set1.length) { return false; }
+	return ((memberQ(car(set1), set2)) || intersectQ(cdr(set1), set2));
+}
+
+/* list of things in set1 also in set2 */
+function intersect(set1, set2) {
+	if(!set1.length) { return []; }
+	if(memberQ(car(set1), set2)) {
+		return cons(car(set1), intersect(cdr(set1), set2));
+	} else {
+		return intersect(cdr(set1), set2);
+	}
+}
+
+
+function union(set1, set2) {
+	if(!set1.length) { return set2; }
+	if(memberQ(car(set1), set2)) {
+		return union(cdr(set1), set2);
+	} else {
+		return cons(car(set1), union(cdr(set1), set2));
+	}
+}
+
+/* list of atoms in all sets : THIS ONE STUMPED ME */ 
+function intersectall(setlist) {
+	if(cdr(setlist).length == 0) { return car(setlist); }
+	return (intersect(car(setlist), intersectall(cdr(setlist))));
+}
+
+
 /* ======================  TESTING  ====================== */
 
 /* in JS, ['a'] != ['a'], so need this to compare two arrays: */
@@ -381,6 +446,8 @@ test(atomQ(9), true, 'atomQ');
 test(atomQ('a'), true, 'atomQ');
 test(atomQ(abc), false, 'atomQ+');
 // exercises:
+test(memberQ('k', derek), true, 'memberQ');
+test(memberQ('q', derek), false, 'memberQ');
 test(rember('e', derek), ['d','r','e','k'], 'rember');
 test(firsts(abcdefghi), ['a','d','g'], 'firsts');
 test(insertr('X', 'e', derek), ['d','e','X','r','e','k'], 'insertr');
@@ -416,3 +483,16 @@ test(member2('z', abcabc), false, 'member2+');
 test(leftmost(abcdefghi), 'a', 'leftmost');
 test(eqlistQ(abcabc, abcabc), true, 'eqlistQ1');
 test(eqlistQ(abcabc, abcdefghi), false, 'eqlistQ1');
+test(setQ(a1b2c3), true, 'set');
+test(setQ(derek), false, 'set+');
+test(makeset(derek), ['d','e','r','k'], 'makeset');
+test(subsetQ(abc, a1b2c3), true, 'subsetQ');
+test(eqsetQ(abc, ['b','c','a']), true, 'eqsetQ');
+test(eqsetQ(abc, ['b','a']), false, 'eqsetQ+');
+test(eqsetQ(['c','b'], abc), false, 'eqsetQ++');
+test(intersectQ(a1b2c3, abc), true, 'intersectQ');
+test(intersectQ(a1b2c3, ['x','t']), false, 'intersectQ+');
+test(intersect(a1b2c3, abc), abc, 'intersect');
+test(intersect(abc, a1b2c3), abc, 'intersect+');
+test(union(a1b2c3, abc), [1,2,3,'a','b','c'], 'union');
+test(intersectall([abc, a1b2c3, ['b','a','t']]), ['a','b'], 'intersectall');
