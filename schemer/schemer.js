@@ -1,6 +1,8 @@
 /* see "TESTING", at the bottom */
 
-/* In function names, the Q means ?, since JavaScript can't use ? there */
+/* In function names: since JavaScript can't use special chars in function names:
+ * Q = ? and  2 = *
+*/
 
 /* =========== primitives =========== */
 
@@ -440,7 +442,70 @@ function revrel(rel) {
 	return cons(revpair(car(rel)), revrel(cdr(rel)));
 }
 
+/* ---  ch8  ---  "_f" means takes a function,  "_C" mean "curry" */
 
+function remberf(funk, a, l) {
+	if(!l.length) { return []; }
+	if(funk(a, car(l))) {
+		return cdr(l);
+	} else {
+		return cons(car(l), remberf(funk, a, cdr(l)));
+	}
+}
+
+
+function eqQC(a) {
+	return function(x) {
+		return eqQ(x, a);
+	};
+}
+
+/* arguments.callee is a JavaScript trick to refer to the current anonymous function */
+function remberfC(funk) {
+	return function(a, l) {
+		if(!l.length) { return []; }
+		if(funk(a, car(l))) {
+			return cdr(l);
+		} else {
+			return cons(car(l), arguments.callee(a, cdr(l)));
+		}
+	};
+}
+var remberEQ = remberfC(eqQ);
+
+
+function seqL(new1, old1, l) {
+	return cons(new1, cons(old1, l));
+}
+
+function seqR(new1, old1, l) {
+	return cons(old1, cons(new1, l));
+}
+
+function seqS(new1, old1, l) {
+	return cons(new1, l);
+}
+
+function seqrem(new1, old1, l) {
+	return l;
+}
+
+function insert_g(seq) {
+	return function(new1, old1, l) {
+		if(!l.length) { return []; }
+		if(car(l) == old1) {
+			// return seq(new1, old1, arguments.callee(new1, old1, cdr(l))); // multi
+			return seq(new1, old1, cdr(l));
+		} else {
+			return cons(car(l), arguments.callee(new1, old1, cdr(l)));
+		}
+	};
+}
+
+var insertL = insert_g(seqL);
+var insertR = insert_g(seqR);
+var subst3  = insert_g(seqS);
+var rember3 = insert_g(seqrem);
 
 /* ======================  TESTING  ====================== */
 
@@ -572,3 +637,17 @@ test(funQ([['a','b'],['c','d'],['a','f']]), false, 'funQ++');
 test(revpair(['b','a']), ab, 'revpair');
 test(revpair([['b'],['a']]), ab2, 'revpair+');
 test(revrel(abcdef), [['b','a'],['d','c'],['f','e']], 'revrel');
+test(remberf(eqQ, 'b', abc), ['a','c'], 'remberf');
+test(remberf(same, ['c','d'], abcdef), [['a','b'],['e','f']], 'remberf+');
+test(eqQC('h')('x'), false, 'ecQC');
+test(eqQC('h')('h'), true, 'ecQC+');
+test(remberEQ('e', derek), ['d','r','e','k'], 'remberfC');
+test(remberEQ(second, [first,second,third]), [first,third], 'remberFC+');
+test(insert_g(seqL)('x','e',derek), ['d','x','e','r','e','k'], 'insert_gL');
+test(insertL('x','e',derek), ['d','x','e','r','e','k'], 'insertL');
+test(insert_g(seqR)('x','e',derek), ['d','e','x','r','e','k'], 'insert_gR');
+test(insertR('x','e',derek), ['d','e','x','r','e','k'], 'insertR');
+test(insert_g(seqS)('x','e',derek), ['d','x','r','e','k'], 'insert_gS');
+test(subst3('x','e',derek), ['d','x','r','e','k'], 'subst3');
+test(rember3(false,'e',derek), ['d','r','e','k'], 'rember3');
+

@@ -69,8 +69,14 @@ Recur on the subparts that are of the same nature:
 * On the subparts of a list
 * On the subexpressions of an arithmetic expression.
 
+
 ## 8
 
 Use help functions to abstract from representations.
+
+
+## 9
+
+Abstract common patterns with a new function.
 
 
