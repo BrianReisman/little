@@ -1,5 +1,7 @@
 /* see "TESTING", at the bottom */
 
+/* In function names, the Q means ?, since JavaScript can't use ? there */
+
 /* =========== primitives =========== */
 
 function car(lat) {
@@ -37,6 +39,9 @@ function numberQ(n) {
 function atomQ(n) {
 	return ((typeof(n) == 'number') || (typeof(n) == 'string'));
 }
+
+/* needed to make these a function so they can be passed as arguments in ch. 8+ */
+var eqQ = equalQ = function(x, y) { return (x == y); };
 
 
 /* ========== exercises from book ============ */
@@ -388,6 +393,55 @@ function intersectall(setlist) {
 }
 
 
+function a_pairQ(x) {
+	if(atomQ(x)) { return false; }
+	if(x.length == 0) { return false; }
+	if(cdr(x).length == 0) { return false; }
+	if(cdr(cdr(x)).length == 0) { return true; }
+	return false;
+}
+
+
+function first(p) {
+	return car(p);
+}
+
+
+function second(p) {
+	return car(cdr(p));
+}
+
+
+function third(l) {
+	return car(cdr(cdr(l)));
+}
+
+
+function build(s1, s2) {
+	return cons(s1, cons(s2, []));
+}
+
+/* a "relation" (rel) is a set (unique!) of pairs */
+/* a "function" (fun) is a relation whose firsts are unique. WTF naming?!? */
+function funQ(rel) {
+	return setQ(firsts(rel));
+}
+
+function fullfunQ(rel) { /* AKA one_to_oneQ */
+	return setQ(seconds(rel));
+}
+
+function revpair(p) {
+	return build(second(p), first(p));
+}
+
+function revrel(rel) {
+	if(!rel.length) { return []; }
+	return cons(revpair(car(rel)), revrel(cdr(rel)));
+}
+
+
+
 /* ======================  TESTING  ====================== */
 
 /* in JS, ['a'] != ['a'], so need this to compare two arrays: */
@@ -428,9 +482,12 @@ function test(val1, val2, message) {
 }
 
 // easy lists to test:
+var ab = ['a','b'];
+var ab2 = [['a'],['b']];
 var abc = ['a','b','c'];
 var derek = ['d','e','r','e','k'];
 var a1b2c3 = ['a',1,'b',2,'c',3];
+var abcdef = [['a','b'], ['c','d'], ['e','f']];
 var abcdefghi = [['a','b','c'],['d','e','f'],['g','h','i']];
 var abcabc = [['a','b'], [[['c']],'a'], 'b', ['c']];
 // primitives:
@@ -450,6 +507,7 @@ test(memberQ('k', derek), true, 'memberQ');
 test(memberQ('q', derek), false, 'memberQ');
 test(rember('e', derek), ['d','r','e','k'], 'rember');
 test(firsts(abcdefghi), ['a','d','g'], 'firsts');
+test(firsts(abcdef), ['a','c','e'], 'firsts');
 test(insertr('X', 'e', derek), ['d','e','X','r','e','k'], 'insertr');
 test(insertl('X', 'e', derek), ['d','X','e','r','e','k'], 'insertl');
 test(subst('X', 'e', derek),  ['d','X','r','e','k'], 'subst');
@@ -481,8 +539,8 @@ test(insertl2('X', 'b', abcabc), [['a','X','b'],[[['c']],'a'],'X','b',['c']], 'i
 test(member2('c', abcabc), true, 'member2');
 test(member2('z', abcabc), false, 'member2+');
 test(leftmost(abcdefghi), 'a', 'leftmost');
-test(eqlistQ(abcabc, abcabc), true, 'eqlistQ1');
-test(eqlistQ(abcabc, abcdefghi), false, 'eqlistQ1');
+test(eqlistQ(abcabc, abcabc), true, 'eqlistQ');
+test(eqlistQ(abcabc, abcdefghi), false, 'eqlistQ+');
 test(setQ(a1b2c3), true, 'set');
 test(setQ(derek), false, 'set+');
 test(makeset(derek), ['d','e','r','k'], 'makeset');
@@ -496,3 +554,21 @@ test(intersect(a1b2c3, abc), abc, 'intersect');
 test(intersect(abc, a1b2c3), abc, 'intersect+');
 test(union(a1b2c3, abc), [1,2,3,'a','b','c'], 'union');
 test(intersectall([abc, a1b2c3, ['b','a','t']]), ['a','b'], 'intersectall');
+test(a_pairQ(ab), true, 'a_pairQ');
+test(a_pairQ(ab2), true, 'a_pairQ');
+test(a_pairQ(abc), false, 'a_pairQ+');
+test(a_pairQ('x'), false, 'a_pairQ++');
+test(a_pairQ([]), false, 'a_pairQ+++');
+test(a_pairQ([[2],['pair']]), true, 'a_pairQ!');
+test(a_pairQ(['a',['b']]), true, 'a_pairQ!!');
+test(first(ab), 'a', 'first');
+test(second(ab2), ['b'], 'second');
+test(third(abcdef), ['e','f'], 'third');
+test(build('a','b'), ab, 'build');
+test(build(['a'],['b']), ab2, 'build');
+test(funQ([['a','b'],['c','d'],['e','f']]), true, 'funQ');
+test(funQ([['a','b'],['c','d'],['e','b']]), true, 'funQ+');
+test(funQ([['a','b'],['c','d'],['a','f']]), false, 'funQ++');
+test(revpair(['b','a']), ab, 'revpair');
+test(revpair([['b'],['a']]), ab2, 'revpair+');
+test(revrel(abcdef), [['b','a'],['d','c'],['f','e']], 'revrel');
