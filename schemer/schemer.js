@@ -462,11 +462,12 @@ function eqQC(a) {
 /* arguments.callee is a JavaScript trick to refer to the current anonymous function */
 function remberfC(funk) {
 	return function(a, l) {
+		var thisF = arguments.callee;
 		if(!l.length) { return []; }
 		if(funk(a, car(l))) {
 			return cdr(l);
 		} else {
-			return cons(car(l), arguments.callee(a, cdr(l)));
+			return cons(car(l), thisF(a, cdr(l)));
 		}
 	};
 }
@@ -491,12 +492,13 @@ function seqrem(new1, old1, l) {
 
 function insert_g(seq) {
 	return function(new1, old1, l) {
+		var thisF = arguments.callee;
 		if(!l.length) { return []; }
 		if(car(l) == old1) {
-			// return seq(new1, old1, arguments.callee(new1, old1, cdr(l))); // multi
+			// return seq(new1, old1, thisF(new1, old1, cdr(l))); // multi
 			return seq(new1, old1, cdr(l));
 		} else {
-			return cons(car(l), arguments.callee(new1, old1, cdr(l)));
+			return cons(car(l), thisF(new1, old1, cdr(l)));
 		}
 	};
 }
@@ -508,6 +510,10 @@ var rember3 = insert_g(seqrem);
 
 function evenQ(n) {
 	return (n == mult(div(n, 2), 2));
+}
+
+function oddQ(n) {
+	return (n != mult(div(n, 2), 2));
 }
 
 function evens_only(l) {
@@ -522,6 +528,25 @@ function evens_only(l) {
 		return cons(evens_only(car(l)), evens_only(cdr(l)));
 	}
 }
+
+function only2FC(boolTest) {
+	return function(l) {
+		var thisF = arguments.callee;
+		if(!l.length) { return []; }
+		if(atomQ(car(l))) {
+			if(boolTest(car(l))) {
+				return cons(car(l), thisF(cdr(l)));
+			} else {
+				return thisF(cdr(l));
+			}
+		} else {
+			return cons(thisF(car(l)), thisF(cdr(l)));
+		}
+	};
+}
+
+var evens_only2 = only2FC(evenQ);
+var odds_only2 = only2FC(oddQ);
 
 
 /* ======================  TESTING  ====================== */
@@ -670,4 +695,10 @@ test(rember3(false,'e',derek), ['d','r','e','k'], 'rember3');
 test(evenQ(1), false, 'evenQ1');
 test(evenQ(2), true, 'evenQ2');
 test(evenQ(0), true, 'evenQ0');
+test(oddQ(1), true, 'oddQ1');
+test(oddQ(2), false, 'oddQ2');
+test(oddQ(0), false, 'oddQ0');
 test(evens_only([[9,1,2,8],3,10,[[9,9],7,6],2]), [[2,8],10,[[],6],2], 'evens_only');
+test(evens_only2([[9,1,2,8],3,10,[[9,9],7,6],2]), [[2,8],10,[[],6],2], 'evens_only2');
+test(odds_only2([[9,1,2,8],3,10,[[9,9],7,6],2]), [[9,1],3,[[9,9],7]], 'odds_only2');
+
