@@ -164,6 +164,7 @@ function minus(n, m) {
 
 
 function mult(n, m) {
+	if(n == 0 || m == 0) { return 0; }
 	if(m == 1) { return n; }
 	return plus(n, mult(n, sub1(m)));
 }
@@ -529,6 +530,8 @@ function evens_only(l) {
 	}
 }
 
+/* These next 7 functions are not in the book. my abstraction:
+ * from multi-dimensional list, return only the items that match the boolTest */
 function only2FC(boolTest) {
 	return function(l) {
 		var thisF = arguments.callee;
@@ -547,6 +550,36 @@ function only2FC(boolTest) {
 
 var evens_only2 = only2FC(evenQ);
 var odds_only2 = only2FC(oddQ);
+
+function sumLat(lat) {
+	if(!lat.length) { return 0; }
+	return plus(car(lat), sumLat(cdr(lat)));
+}
+
+function multLat(lat) {
+	if(!lat.length) { return 1; }
+	return mult(car(lat), multLat(cdr(lat)));
+}
+
+function sumList(l) {
+	if(!l.length) { return 0; }
+	if(atomQ(car(l))) {
+		return plus(car(l), sumList(cdr(l)));
+	} else {
+		return plus(sumList(car(l)), sumList(cdr(l)));
+	}
+}
+
+function multList(l) {
+	if(!l.length) { return 1; }
+	if(atomQ(car(l))) {
+		return mult(car(l), multList(cdr(l)));
+	} else {
+		return mult(multList(car(l)), multList(cdr(l)));
+	}
+}
+
+/* end of Chapter 8 : I still don't understand collectors */
 
 
 /* ======================  TESTING  ====================== */
@@ -701,4 +734,9 @@ test(oddQ(0), false, 'oddQ0');
 test(evens_only([[9,1,2,8],3,10,[[9,9],7,6],2]), [[2,8],10,[[],6],2], 'evens_only');
 test(evens_only2([[9,1,2,8],3,10,[[9,9],7,6],2]), [[2,8],10,[[],6],2], 'evens_only2');
 test(odds_only2([[9,1,2,8],3,10,[[9,9],7,6],2]), [[9,1],3,[[9,9],7]], 'odds_only2');
+test(sumLat([5,0,2,9]), 16, 'sumLat');
+test(multLat([5,1,2,3]), 30, 'multLat2');
+test(multLat([5,0,2,3]), 0, 'multLat2+');
+test(sumList([5,[4,3],2,[[9]]]), 23, 'sumList');
+test(multList([5,[4,3],2,[[9]]]), 1080, 'multList');
 
