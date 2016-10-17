@@ -56,7 +56,7 @@ function memberQ(a, lat) {
 
 
 function rember(a, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == a) {
 		return cdr(lat);
 	} else {
@@ -66,13 +66,13 @@ function rember(a, lat) {
 
 /* only works with a list of lats */
 function firsts(l) {
-	if(!l.length) { return l; }
+	if(!l.length) { return []; }
 	return cons(car(car(l)), firsts(cdr(l)));
 }
 
 
 function insertr(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(old1, cons(new1, cdr(lat)));
 	} else {
@@ -82,7 +82,7 @@ function insertr(new1, old1, lat) {
 
 
 function insertl(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(new1, cons(old1, cdr(lat)));
 	} else {
@@ -92,7 +92,7 @@ function insertl(new1, old1, lat) {
 
 
 function subst(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(new1, cdr(lat));
 	} else {
@@ -102,7 +102,7 @@ function subst(new1, old1, lat) {
 
 
 function subst2(new1, old1, old2, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1 || car(lat) == old2) {
 		return cons(new1, cdr(lat));
 	} else {
@@ -112,7 +112,7 @@ function subst2(new1, old1, old2, lat) {
 
 
 function multirember(a, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == a) {
 		return multirember(a, cdr(lat));
 	} else {
@@ -122,7 +122,7 @@ function multirember(a, lat) {
 
 
 function multiinsertr(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(old1, cons(new1, multiinsertr(new1, old1, cdr(lat))));
 	} else {
@@ -132,7 +132,7 @@ function multiinsertr(new1, old1, lat) {
 
 
 function multiinsertl(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(new1, cons(old1, multiinsertl(new1, old1, cdr(lat))));
 	} else {
@@ -142,7 +142,7 @@ function multiinsertl(new1, old1, lat) {
 
 
 function multisubst(new1, old1, lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(car(lat) == old1) {
 		return cons(new1, multisubst(new1, old1, cdr(lat)));
 	} else {
@@ -227,7 +227,7 @@ function rempick(n, lat) {
 
 
 function no_nums(lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(numberQ(car(lat))) {
 		return no_nums(cdr(lat));
 	} else {
@@ -237,7 +237,7 @@ function no_nums(lat) {
 
 
 function all_nums(lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	if(numberQ(car(lat))) {
 		return cons(car(lat), all_nums(cdr(lat)));
 	} else {
@@ -257,7 +257,7 @@ function occur(a, lat) {
 
 
 function rember2(a, l) {
-	if(!l.length) { return l; }
+	if(!l.length) { return []; }
 	if(atomQ(car(l))) {
 		if(car(l) == a) {
 			return rember2(a, cdr(l));
@@ -271,7 +271,7 @@ function rember2(a, l) {
 
 
 function insertr2(new1, old1, l) {
-	if(!l.length) { return l; }
+	if(!l.length) { return []; }
 	if(atomQ(car(l))) {
 		if(car(l) == old1) {
 			return cons(old1, cons(new1, insertr2(new1, old1, cdr(l))));
@@ -286,7 +286,7 @@ function insertr2(new1, old1, l) {
 
 
 function insertl2(new1, old1, l) {
-	if(!l.length) { return l; }
+	if(!l.length) { return []; }
 	if(atomQ(car(l))) {
 		if(car(l) == old1) {
 			return cons(new1, cons(old1, insertl2(new1, old1, cdr(l))));
@@ -345,7 +345,7 @@ function setQ(lat) {
 
 
 function makeset(lat) {
-	if(!lat.length) { return lat; }
+	if(!lat.length) { return []; }
 	return cons(car(lat), multirember(car(lat), makeset(cdr(lat))));
 }
 
@@ -453,7 +453,6 @@ function remberf(funk, a, l) {
 	}
 }
 
-
 function eqQC(a) {
 	return function(x) {
 		return eqQ(x, a);
@@ -471,8 +470,8 @@ function remberfC(funk) {
 		}
 	};
 }
-var remberEQ = remberfC(eqQ);
 
+var remberEQ = remberfC(eqQ);
 
 function seqL(new1, old1, l) {
 	return cons(new1, cons(old1, l));
@@ -507,8 +506,22 @@ var insertR = insert_g(seqR);
 var subst3  = insert_g(seqS);
 var rember3 = insert_g(seqrem);
 
+function evenQ(n) {
+	return (n == mult(div(n, 2), 2));
+}
 
-
+function evens_only(l) {
+	if(!l.length) { return []; }
+	if(atomQ(car(l))) {
+		if(evenQ(car(l))) {
+			return cons(car(l), evens_only(cdr(l)));
+		} else {
+			return evens_only(cdr(l));
+		}
+	} else {
+		return cons(evens_only(car(l)), evens_only(cdr(l)));
+	}
+}
 
 
 /* ======================  TESTING  ====================== */
@@ -654,4 +667,7 @@ test(insertR('x','e',derek), ['d','e','x','r','e','k'], 'insertR');
 test(insert_g(seqS)('x','e',derek), ['d','x','r','e','k'], 'insert_gS');
 test(subst3('x','e',derek), ['d','x','r','e','k'], 'subst3');
 test(rember3(false,'e',derek), ['d','r','e','k'], 'rember3');
-
+test(evenQ(1), false, 'evenQ1');
+test(evenQ(2), true, 'evenQ2');
+test(evenQ(0), true, 'evenQ0');
+test(evens_only([[9,1,2,8],3,10,[[9,9],7,6],2]), [[2,8],10,[[],6],2], 'evens_only');
