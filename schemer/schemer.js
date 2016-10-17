@@ -507,6 +507,10 @@ var insertR = insert_g(seqR);
 var subst3  = insert_g(seqS);
 var rember3 = insert_g(seqrem);
 
+
+
+
+
 /* ======================  TESTING  ====================== */
 
 /* in JS, ['a'] != ['a'], so need this to compare two arrays: */

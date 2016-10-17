@@ -80,3 +80,7 @@ Use help functions to abstract from representations.
 Abstract common patterns with a new function.
 
 
+## 10
+
+Build functions to collect more than one value at a time.
+
