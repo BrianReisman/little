@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class=" js flexbox no-touch csstransforms inlinesvg" lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<style>
+body { width: 50em;  margin: 0 auto; line-height: 1.6em;}
+code { background-color: #eef; padding: 0.25em; font-size: 1.3em; }
+</style>
+<title>goodmike blogs here | Unpacking multirember&amp;co from TLS </title>
+</head>
+
+<body class="single single-post postid-34 single-format-standard group-blog">
+	
+<div id="page" class="hfeed site sidebar-style-closing sidebar-style-left">
+				
+	<div id="content" class="site-content">
+		
+<div id="primary" class="content-area">
+	<main id="main" class="site-main" role="main">
+
+	
+		
+
+			<article id="post-34" class="post-34 post type-post status-publish format-standard hentry category-uncategorized">
+				
+		<header class="entry-header">
+			<h2><a href="http://www.michaelharrison.ws/weblog/?p=34">Unpacking multirember&amp;co from TLS</a></h2>
+					</header><!-- .entry-header -->
+		<div class="entry-content"><p>The purpose of <em>The Little Schemer</em>,
+ its authors profess, is to teach you to think recursively, and to do so
+ without presenting too much math or too many computer science concepts.
+ The book is a ball to read. However, from the perspective of this 
+reader, who is fairly new to functional programming and totally new to 
+Scheme, the book gets almost asymptotically more difficult and 
+complicated towards the end of chapter 8, when we hit the function <strong>multirember&amp;co</strong>.
+  Looking around on the web, I noticed quite a few people had also hit 
+this speed bump and were scratching their heads about how to go on. I 
+think I can offer some assistance. So, <a href="http://www.michaelharrison.ws/weblog/?p=31" title="I announce in yesterday's post that I am going to embarrass myself by posting about currying in Scheme">as threatened yesterday</a>,
+ I now unveil my initial contribution to the wild world of Lisp, my 
+explication of multirember&amp;co and the concept of currying. Here’s 
+hoping I don’t embarrass myself too much.</p>
+<p><span id="more-34"></span></p>
+<p><i>The Little Schemer,</i> (hereafter “TLS”) is the latest iteration of <i>The Little LISPer</i>,
+ and is presented as a dialogue between teacher and student. If you take
+ the roll of the student, and try to answer the teacher’s questions, 
+especially those of the form “define this function whose behavior we’ve 
+been describing,” you can really flex your neurons. Each chapter is a 
+little more complicated than the previous, and within each chapter the 
+questions get slightly harder as you go. It’s like walking up a steadily
+ graded hill. Until you get to page 137 and they hit you with a long 
+function definition, for a function you’ve never seen before, and they 
+ask, “What does this do?”</p>
+<p>Yikes!</p>
+<p>Here is the code for the function. (Thank you, <a href="http://groups.google.com/group/comp.lang.scheme/msg/ee4cb78bb104cf10">Geoffrey King</a>, for transcribing it in your post.)</p>
+<pre class="code">(define multirember&amp;co
+   (lambda (a lat col)
+     (cond
+       ((null? lat)
+        (col '() '()))
+       ((eq? (car lat) a)
+        (multirember&amp;co a
+                        (cdr lat)
+                        (lambda (newlat seen)
+                          (col newlat
+                               (cons (car lat) seen)))))
+       (else
+        (multirember&amp;co a
+                        (cdr lat)
+                        (lambda (newlat seen)
+                          (col (cons (car lat) newlat)
+                               seen)))))))
+</pre>
+<p>The first clue to dealing with this function is its context. The 
+previous pages of TLS deal with currying, in which you define a function
+ like <code>(lambda (x) (lambda(y) (eq? x y) ))</code> — it takes one 
+argument, parameter x, and then returns the inner function, which also 
+takes one argument, parameter y. The value you pass as x acts to 
+customize the inner function by binding the occurance of variable x in 
+the inner function to the value you passed in. So chapter 8 is about the
+ practice of wrapping functions in this way.</p>
+<p>The chapter is also about passing functions as arguments. The first line of multirember&amp;co, <code>(lambda (a lat col)</code>
+ defines three parameters. The variables ‘a’ and ‘lat’ are by convention
+ used for an atom and a list of atoms. But ‘col’ is a function–you have 
+to pass multirember&amp;co a function that it uses inside its own 
+definition.</p>
+<p>TLS admits that multirember&amp;co is complicated. “That looks really
+ complicated!” says the student. But it seeks to simplify the function 
+by defining functions to stand in for a) the function that will be 
+passed as ‘col’; b) the first inner function defined in the <code>cond</code> branch <code>(eq? (car lat) a)</code>; and c) the inner function defined in the <code>cond else</code>
+ branch. To try to make you feel better about being up to your eyelids 
+in deep water, the TLS authors give their functions friendly names, like
+ “a-friend” and “next-friend.” But I prefer names that tell me what roll
+ the functions play, so here are my renamed functions:</p>
+<p>a) the function that will be passed initially as ‘col’ (and will be executed last):<br>
+<code>(define last-function<br>
+  (lambda(x y) (length x)))</code></p>
+<p>b) the function called when a matches (car lat):<br>
+<code>(define when-match<br>
+  (lambda (newlat seen) (col newlat (cons (car lat) seen)))<br>
+</code></p>
+<p>c) the function called when the cond else branch executes:<br>
+<code>(define when-differ<br>
+  (lambda (newlat seen) (col (cons (car lat) newlat) seen))</code></p>
+<p>TLS walks you through an execution of multirember&amp;co, and so will
+ I. To further simplify things, and reduce the amount of typing I have 
+to do, I’ll change the example in the book. Instead of a four-word lat 
+with some longer words, let’s use (berries tuna fish) for our list, and 
+we’ll keep tuna as our atom argument.</p>
+<p>Here’s multirember&amp;co, with the two inner functions replaced by the pre-defined helper functions:</p>
+<pre class="code">(define multirember&amp;co
+   (lambda (a lat col)
+     (cond
+       ((null? lat)
+        (col '() '()))
+       ((eq? (car lat) a)
+        (multirember&amp;co a
+                        (cdr lat)
+                        (when-match)))
+       (else
+        (multirember&amp;co a
+                        (cdr lat)
+                        (when-differ))))))
+</pre>
+<p>When the function is called the first time, <code>a</code> is tuna, <code>lat</code> is (berries tuna fish), and <code>col</code>
+ is last-function. (car lat) is berries, which does NOT eq tuna, so the 
+else branch executes: multirember&amp;co is called with tuna as <code>a</code>, (tuna fish) as <code>lat</code> because we pass <code>(cdr lat)</code> and so we lose the berries atom at the front of the list, and when-differ as <code>col</code>.</p>
+<p>But wait. Actually, we’re not just passing the when-differ function we defined above. Here is that definition:</p>
+<p><code>(lambda (newlat seen) (col (cons (car lat) newlat) seen))</code></p>
+<p>This definition contains a variable, lat, that has a value at the 
+time multirember&amp;co is called recursively: (berries tuna fish). So <code>(car lat)</code> is <code>(quote berries)</code>. What we’ve got here is a version, or an instance, of when-differ that has a value bound to one of its variables.</p>
+<p>This is like currying, this binding of values to the variable of a 
+function and then using this altered function to do something. I think 
+that currying, however, refers to wrapping functions so that only one 
+variable at a time is given a value. What this apparent creation of a 
+specific instance of the function when-differ DOES have in common with 
+currying is this: both use <strong>closures</strong> to encapsulate the 
+instance of the function with bound variables, or, to be precise, to 
+make a copy of the function with its own scope that will persist so long
+ as there are references to the closure. I didn’t realize this on my 
+own, of course. I owe this insight to Richard P. Gabriel’s essay The Why
+ of Y, which you can <a href="http://www.ddj.com/windows/199200394" title="Richard P. Gabriel's essay The Why of Y">read in this Dr. Dobb’s article</a> or <a title="Richard P. Gabriel's The Why of Y, in PDF format" href="http://www.google.com/url?sa=t&amp;ct=res&amp;cd=1&amp;url=http%3A%2F%2Fwww.dreamsongs.com%2FFiles%2FWhyOfY.pdf&amp;ei=1OixRt7zFaCiec-iyAc&amp;usg=AFQjCNHONKt4Cic6Cr2lVBs-PxnC7Xw45Q&amp;sig2=BhkMwJhB-8-lao-dU1H2Dw">download as a PDF</a>.</p>
+<p>There’s something else in <code>when-differ</code> that will bind to a value: <code>col</code>. The function passed, remember, is last-function. So we can (and should) substitute that in for <code>col</code>.</p>
+<p>Let’s give a unique name to the instance (technically the closure) of
+ the function when-differ that has these two values bound to it: <strong>when-differ-1</strong>. Let’s write it out, and set it aside for later use:</p>
+<p><code>(define when-differ-1<br>
+(lambda (newlat seen) (<strong>last-function</strong> (cons <strong>(quote berries)</strong> newlat) seen))<br>
+)</code></p>
+<p>Now, on to iteration two, which we can summarize like this:<br>
+<code>(multirember&amp;co (quote tuna) (tuna fish) when-differ-1)</code></p>
+<p>OK, so this time, <code>(eq? (car lat) a)</code> yields true, and the other branch of the <code>cond</code>executes: multirember&amp;co is called with tuna as <code>a</code>, (fish) as <code>lat</code>, and when-match as <code>col</code>. Once again, thanks to currying, the definition of when-match contains expressions to which values are bound:<code>(car lat)</code>, which becomes <code>(quote tuna) </code>,
+ and col, which becomes when-differ-1. Remember, we just recurred by 
+calling multirember&amp;co with when-differ-1 as the function argument 
+for the parameter <code>col</code>.  So now let’s define the resulting instance of when-match as <strong>when-match-1</strong>:</p>
+<p><code>(define when-match-1<br>
+  (lambda (newlat seen) (when-differ-1 newlat (cons (quote tuna) seen)))<br>
+)</code></p>
+<p>On on to iteration three–we’re nearly there–which we can summarize like this:<br>
+<code>(multirember&amp;co (quote tuna) (fish) when-match-1)</code></p>
+<p>This time, tuna and fish don’t match, which means we’re going to recur with another version of when-differ, <strong>when-differ-2</strong>:</p>
+<p><code>(define when-differ-2<br>
+  (lambda (newlat seen) (when-match-1 (cons (quote fish) newlat) seen))<br>
+)</code></p>
+<p>Finally, iteration four:<br>
+<code>(multirember&amp;co (quote tuna) () when-differ-2)</code></p>
+<p>This time <code>lat</code> is an empty list, which means (null? lat) is true, and the terminating line <code>(col (quote()) (quote())) </code> is executed. Yay! We’re done!</p>
+<p>Except…</p>
+<p>The result of the completed execution <code>(col (quote()) (quote())) </code> has to be evaluated. Here’s where everything turns inside out, or rightside out if you like.</p>
+<p>First of all, the value of <code>col</code> in the final iteration was when-differ-2. So we’ll start there.</p>
+<p><code>(when-differ-2 (quote()) (quote()))</code></p>
+<p>Now, look back up and get the definition of when-differ-2 and substitute it.<br>
+<code>((lambda (newlat seen) (when-match-1 (cons (quote fish) newlat) seen)) (quote()) (quote()))</code></p>
+<p>OK, so the parameters <code>newlat</code> and <code>seen</code> both get assigned the value of an empty list:<br>
+<code>(when-match-1 (cons (quote fish) (quote())) (quote()))</code></p>
+<p>We can simplify this by consing fish onto the empty list:<br>
+<code>(when-match-1 (fish) (quote()))</code></p>
+<p>We have a definition for when-match-1 too. Let’s substitute that in now.<br>
+<code>((lambda (newlat seen) (when-differ-1 newlat (cons (quote tuna) seen))) (fish) (quote())) )</code></p>
+<p>And again assign values, this time (fish) and () to newlat and seen:<br>
+<code>(when-differ-1 (fish) (tuna))</code></p>
+<p>We’re getting somewhere now. Do you see how at each step we’re consing a value onto either <code>seen</code> or <code>newlat</code>? <code>seen</code> has gotten the instance of tuna, which was the atom we passed to multirember&amp;co at the start, whereas <code>newlat</code> has gotten the other atom, fish. Guess where berries is going to go when we get to it.</p>
+<p>Now, let’s substitute our definition of when-differ-1:<br>
+<code>((lambda (newlat seen) (last-function (cons (quote berries) newlat) seen))  (fish) (tuna))</code></p>
+<p>Which becomes….<br>
+<code>(last-function (berries fish) (tuna) )</code></p>
+<p>And now we’re back where we started, with last-function.</p>
+<p><code>( (lambda(x y) (length x)) (berries fish) (tuna) )</code></p>
+<p><code>(length (berries fish) )</code></p>
+<p><code>2</code></p>
+<p>So that’s how multirember&amp;co works. What does it accomplish? It seems to separate occurrences of the atom <code>a</code> in the list of atoms <code>lat</code> from the other atoms in <code>lat</code>, and then it executes last-function using the list of occurrences and the list of other atoms.</p>
+<p>In an imperative language like C or Java, you would probably define 
+two variables, one for each list, and then loop through the list of 
+atoms, testing each element in the list for equality with <code>a</code>,
+ and then pushing the element onto either of the two lists. Finally, you
+ would call the final function with the two lists you built.</p>
+<p>Consider the differences in this approach. Throughout the loop, you 
+have several variables remaining in scope, which means you have an 
+opportunity to munge one of them accidentally. Also, how modular is this
+ hypothetical code? In C, you could pass the last-function function as 
+an argument to a procedure that encapsulates the loop, but try it in 
+Java. No sir, in Java you’d have to call a method to get the two lists 
+(which would have to come back wrapped into one object, probably a <code>String[]</code> array) and then call last-function with <code>returnval[0]</code> and <code>returnval[1]</code>. Not terrible, but not elegant either.</p>
+<p>That’s just scratching the surface, I’m sure. If the example were 
+more complicated, other implications of the recursive approach might 
+become clear, at least to smarter people than me. But there is one other
+ thing to point out.</p>
+<p>As TLS points out, the function you supply for use with the two lists is assigned to a parameter names <code>col</code>
+ because “col” stands for “collector” by convention. What is this 
+function collecting? The two lists, of course. But more than that each 
+use of <code>col</code>, as it changes from when-differ to when-match, 
+is persisting the values of the lists from one step to the next. And 
+that’s important because as of page 136, there has been no mention in 
+TLS of an assignment operator. So even if we wanted to define variables 
+to reference while looping through the list, we could not. Not yet. 
+After all, such code would produce what functional programmers refer to,
+ with a sniff, as side effects.</p>
+</div>
+				<footer class="entry-footer">
+									<p class="tags"></p>
+			<p class="categories">Categorized in: <a href="http://www.michaelharrison.ws/weblog/?cat=1" rel="category">Uncategorized</a></p>
+							<p class="date"><span class="posted-on-text">Posted on </span><span class="posted-on-date"><a href="http://www.michaelharrison.ws/weblog/?p=34" title="3:18 pm" rel="bookmark"><time class="entry-date published" datetime="2007-08-01T15:18:34+00:00">August 1, 2007</time></a></span><span class="byline"> by <span class="vcard author"><a class="url fn n" href="http://www.michaelharrison.ws/weblog/?author=2" title="View all posts by mh" rel="author">mh</a></span></span></p>
+					</footer><!-- .entry-footer -->
+		
+			</article><!-- #post-34 -->
+</body></html>
